@@ -7,6 +7,7 @@ namespace BalthasarLib.PianoRollWindow
 {
     public class PianoProperties
     {
+        RollConfigures rconf;
         /// <summary>
         /// Numerator of Beats
         /// How much Beats in one Summery
@@ -34,11 +35,12 @@ namespace BalthasarLib.PianoRollWindow
                 return (uint)(SemibreveLength / (uint)BeatType);
             }
         }
-    
-        public PianoProperties()
+
+        internal PianoProperties(RollConfigures rconf)
         {
             BeatsCountPerSummery = 4;
             BeatType = NoteType.Crotchet;
+            this.rconf = rconf;
         }
 
         private uint _crotchetLengthPixel = 66;
@@ -57,21 +59,21 @@ namespace BalthasarLib.PianoRollWindow
                 }
             } 
         }
-        public long dertTick2dertPixel(long dertTick)
+        public double dertTick2dertPixel(long dertTick)
         {
             double PixelPerTick = (double)(_crotchetLengthPixel*4) / SemibreveLength;
             double ret = dertTick * PixelPerTick;
-            return (long)ret;
+            return ret;
         }
-        public long dertPixel2dertTick(long dertPixel)
+        public double dertPixel2dertTick(long dertPixel)
         {
             double PixelPerTick = (double)(_crotchetLengthPixel * 4) / SemibreveLength;
-            double ret = dertPixel/PixelPerTick;
-            return (long)ret;
+            double ret = dertPixel / PixelPerTick;
+            return ret;
         }
 
-        private uint _pianoStartTick=0;
-        public uint PianoStartTick
+        private long _pianoStartTick = 0;
+        internal long PianoStartTick
         {
             get
             {
@@ -84,6 +86,45 @@ namespace BalthasarLib.PianoRollWindow
                     _pianoStartTick = value;
                 }
             }
+        }
+
+        private uint _pianoTopNote = 127;
+        internal uint PianoTopNote
+        {
+            get
+            {
+                return _pianoTopNote;
+            }
+            set
+            {
+                if (value > rconf.MaxNoteNumber)
+                {
+                    _pianoTopNote = (uint)rconf.MaxNoteNumber;
+                }
+                else if (value < rconf.MinNoteNumber)
+                {
+                    _pianoTopNote = (uint)rconf.MinNoteNumber;
+                }
+                else
+                {
+                    _pianoTopNote = value;
+                }
+            }
+        }
+
+        internal PianoRollPoint getPianoStartPoint()
+        {
+            //获取当前信息
+            long BeatCountBefore = PianoStartTick / BeatLength;//获取之前有几个整拍子
+            long BeatDenominatolBefore = PianoStartTick % BeatLength;//获取余数拍子
+
+            PianoRollPoint ret = new PianoRollPoint();
+            ret.Tick = PianoStartTick;
+            ret.BeatNumber = BeatCountBefore;
+            ret.DenominatolTicksBefore = BeatDenominatolBefore;
+            ret.NextWholeBeatNumber = ret.BeatNumber + 1;
+            ret.NextWholeBeatDistance = BeatLength - BeatDenominatolBefore;
+            return ret;
         }
     }
 }

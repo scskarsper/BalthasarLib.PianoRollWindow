@@ -41,16 +41,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PianoProperties.cs" />
-    <Compile Include="CurrentConfigure.cs" />
+    <Compile Include="DrawUtils\RollDrawUtils.cs" />
+    <Compile Include="DrawUtils\DrawUtils.cs" />
+    <Compile Include="DrawUtils\TitleDrawUtils.cs" />
+    <Compile Include="Models\PianoMouseEventArgs.cs" />
+    <Compile Include="Configures\PianoProperties.cs" />
+    <Compile Include="Models\PianoRollPoint.cs" />
     <Compile Include="PianoRollWindow.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="PianoRollWindow.Designer.cs">
       <DependentUpon>PianoRollWindow.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\PitchValuePair.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RollConfigures.cs" />
+    <Compile Include="Configures\RollConfigures.cs" />
+    <Compile Include="DrawUtils\TrackDrawUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="PianoRollWindow.resx">

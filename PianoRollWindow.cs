@@ -12,29 +12,42 @@ namespace BalthasarLib.PianoRollWindow
 {
     public partial class PianoRollWindow : UserControl
     {
-        RollConfigures rconf = new RollConfigures();
-        CurrentConfigure cconf;
 
+        /// <summary>
+        /// 私有属性
+        /// </summary>
+        #region
+        RollConfigures rconf = new RollConfigures();
+        PianoProperties pprops;
+        #endregion
+
+        /// <summary>
+        /// 公共属性
+        /// </summary>
+        #region
         public PianoProperties PianoProps
         {
             get
             {
-                return cconf.PianoProps;
-            }
-            set
-            {
-                cconf.PianoProps = value;
-                d2DPainterBox1.Refresh();
+                return pprops;
             }
         }
-        public PianoRollWindow()
+        public void setPianoStartTick(long Tick)
         {
-            InitializeComponent();
-            cconf = new CurrentConfigure(rconf);
-            cconf.CurrentTopNote = rconf.MaxNoteNumber - noteScrollBar1.Value;
-            InitGUI();
+            PianoProps.PianoStartTick = Tick;
+            d2DPainterBox1.Refresh();
         }
+        public void setPianoTopNote(uint NoteNumber)
+        {
+            PianoProps.PianoTopNote = NoteNumber;
+            d2DPainterBox1.Refresh();
+        }
+        #endregion
         
+        /// <summary>
+        /// 基础逻辑-私有
+        /// </summary>
+        #region
         void InitGUI()
         {
             int noteArea = this.ClientRectangle.Height - rconf.Const_TitleHeight;
@@ -49,39 +62,77 @@ namespace BalthasarLib.PianoRollWindow
             noteScrollBar1.Height = this.ClientRectangle.Height - rconf.Const_TitleHeight;
             noteScrollBar1.Top = rconf.Const_TitleHeight;
             noteScrollBar1.Width = rconf.Const_VScrollBarWidth;
+            noteScrollBar1.Left = this.ClientRectangle.Width - rconf.Const_VScrollBarWidth;
             d2DPainterBox1.Top = 0;
             d2DPainterBox1.Left = 0;
             d2DPainterBox1.Width = this.ClientRectangle.Width;
             d2DPainterBox1.Height = this.ClientRectangle.Height;
         }
+        private void PianoRollWindow_Resize(object sender, EventArgs e)
+        {
+            InitGUI();
+        }
+        private void noteScrollBar1_Scroll(object sender, ScrollEventArgs e)
+        {
+            int TopNote = rconf.MaxNoteNumber - noteScrollBar1.Value;
+            pprops.PianoTopNote = (uint)(TopNote > 0 ? TopNote : 0);
+            d2DPainterBox1.Refresh();
+        }
+        #endregion
 
+        /// <summary>
+        /// 基础逻辑-公有
+        /// </summary>
+        #region
+        public PianoRollWindow()
+        {
+            InitializeComponent();
+            pprops = new PianoProperties(rconf);
+            int TopNote=(rconf.MaxNoteNumber - noteScrollBar1.Value);
+            pprops.PianoTopNote = (uint)(TopNote>0?TopNote:0);
+            InitGUI();
+        }
+        public void RedrawPiano()
+        {
+
+            d2DPainterBox1.Refresh();
+        }
+        #endregion
+
+
+        /// <summary>
+        /// 绘图冒泡事件声明
+        /// </summary>
+        #region
+        // 创建一个委托，返回类型为void，两个参数
+        public delegate void OnPianoTrackDrawHandler(object sender, DrawUtils.TrackDrawUtils utils);
+        public delegate void OnPianoTitleDrawHandler(object sender, DrawUtils.TitleDrawUtils utils);
+        public delegate void OnPianoRollDrawHandler(object sender, DrawUtils.RollDrawUtils utils);
+        // 将创建的委托和特定事件关联,在这里特定的事件为KeyDown
+        public event OnPianoTrackDrawHandler TrackPaint;
+        public event OnPianoTitleDrawHandler TitlePaint;
+        public event OnPianoRollDrawHandler RollPaint;
+        #endregion
+
+        /// <summary>
+        /// 绘图逻辑
+        /// </summary>
+        #region
         private void d2DPainterBox1_D2DPaint(object sender, BalthasarLib.D2DPainter.D2DPaintEventArgs e)
         {
-            PianoRollPoint sp=cconf.getPianoStartPoint();
-            DrawPianoArea(e,sp);
-            DrawPianoMouseAxis(e);
-            DrawPianoRoll(e);
-            DrawPianoTitle(e, sp);
+            PianoRollPoint sp=pprops.getPianoStartPoint();
+            DrawPianoTrackArea(sender,e,sp);
+            DrawPianoRollArea(sender, e);
+            DrawPianoTitleArea(sender, e, sp);
         }
-
-        private void DrawPianoMouseAxis(BalthasarLib.D2DPainter.D2DPaintEventArgs e)
-        {
-            D2DGraphics g = e.D2DGraphics;
-            Point L1_p1 = new Point(0, e.MousePoint.Y);
-            Point L1_p2 = new Point(e.ClipRectangle.Width, e.MousePoint.Y);
-            Point L2_p1 = new Point(e.MousePoint.X, 0);
-            Point L2_p2 = new Point(e.MousePoint.X, e.ClipRectangle.Height);
-            g.DrawLine(L1_p1, L1_p2, Color.Red, 1);
-            g.DrawLine(L2_p1, L2_p2, Color.Red, 1);
-        }
-        private void DrawPianoArea(BalthasarLib.D2DPainter.D2DPaintEventArgs e, PianoRollPoint startPoint)
+        private void DrawPianoTrackArea(object sender, BalthasarLib.D2DPainter.D2DPaintEventArgs e, PianoRollPoint startPoint)
         {
             D2DGraphics g = e.D2DGraphics;
 
             int y = rconf.Const_TitleHeight;//绘制点纵坐标
             int w = e.ClipRectangle.Width - rconf.Const_VScrollBarWidth;
             //绘制钢琴窗
-            int cNote = cconf.CurrentTopNote;//绘制区域第一个阶的音符
+            int cNote = (int)pprops.PianoTopNote;//绘制区域第一个阶的音符
             while (y < e.ClipRectangle.Height)//若未画超界
             {
                 //计算绘制区域
@@ -106,29 +157,27 @@ namespace BalthasarLib.PianoRollWindow
                 g.FillRectangle(Rect, KeyColor);
                 //绘制边线
                 g.DrawLine(LB, RB, (Key == 5 || Key == 0) ? OLineColor : LineColor,2);//isB ? LineL : LineB);
-                //g.DrawText(cNote.ToString()+rconf.KeyChar[Key]+Octave.ToString(), Rect, Color.White, new System.Drawing.Font("宋体", 12));
                 //递归
                 y = y + rconf.Const_RollNoteHeight;
                 cNote = cNote - 1;
             }
             //绘制分节符
-
             //初始化
-            long x = rconf.Const_RollWidth;//起点画线
+            double x = rconf.Const_RollWidth;//起点画线
             long BeatNumber = startPoint.BeatNumber;//获取起点拍号
-            long BeatPixelLength = cconf.PianoProps.dertTick2dertPixel(cconf.PianoProps.BeatLength);//一拍长度
+            double BeatPixelLength = pprops.dertTick2dertPixel(pprops.BeatLength);//一拍长度
             if (startPoint.DenominatolTicksBefore!=0)//非完整Beats
             {
                 //起点不在小节线
                 BeatNumber=startPoint.NextWholeBeatNumber;
-                x = x+cconf.PianoProps.dertTick2dertPixel(startPoint.NextWholeBeatDistance);
+                x = x+pprops.dertTick2dertPixel(startPoint.NextWholeBeatDistance);
             }
             while (x <= w)
             {
                 g.DrawLine(
-                new Point((int)x, rconf.Const_TitleHeight),
-                new Point((int)x, e.ClipRectangle.Height),
-                BeatNumber % cconf.PianoProps.BeatsCountPerSummery == 0 ? Color.Black : rconf.RollColor_LineOctive_NormalSound
+                new Point((int)Math.Round(x, 0), rconf.Const_TitleHeight),
+                new Point((int)Math.Round(x, 0), e.ClipRectangle.Height),
+                    BeatNumber % pprops.BeatsCountPerSummery == 0 ? Color.Black : rconf.RollColor_LineOctive_NormalSound
                 );
                 BeatNumber=BeatNumber+1;
                 x = x + BeatPixelLength;
@@ -139,16 +188,17 @@ namespace BalthasarLib.PianoRollWindow
                 rconf.Const_TitleHeight,
                 w-rconf.Const_RollWidth,
                 e.ClipRectangle.Height-rconf.Const_TitleHeight);//可绘制区域
-
-            /*Random rnd = new Random(DateTime.Now.Millisecond);
-            for (int i = 0; i < 10000; i++)
+            if (TrackPaint != null)
             {
-                Point p1 = new Point(rnd.Next(0, w), rnd.Next(0, e.ClipRectangle.Height));
-                Point p2 = new Point(rnd.Next(0, w), rnd.Next(0, e.ClipRectangle.Height));
-                g.DrawLine(p1, p2, Color.Red);
-            }*/
+                D2DPaintEventArgs d2de = new D2DPaintEventArgs(
+                    e.D2DGraphics,
+                    CurrentRect,
+                    e.MousePoint
+                    );
+                TrackPaint(sender, new BalthasarLib.PianoRollWindow.DrawUtils.TrackDrawUtils(d2de, rconf, pprops));
+            }
         }
-        private void DrawPianoTitle(BalthasarLib.D2DPainter.D2DPaintEventArgs e, PianoRollPoint startPoint)
+        private void DrawPianoTitleArea(object sender, BalthasarLib.D2DPainter.D2DPaintEventArgs e, PianoRollPoint startPoint)
         {
             D2DGraphics g = e.D2DGraphics;
             Rectangle BlackRect = new Rectangle(
@@ -170,36 +220,36 @@ namespace BalthasarLib.PianoRollWindow
             //绘制分节符
 
             //初始化
-            long x = rconf.Const_RollWidth;//起点画线
+            double x = rconf.Const_RollWidth;//起点画线
             long BeatNumber = startPoint.BeatNumber;//获取起点拍号
-            long BeatPixelLength = cconf.PianoProps.dertTick2dertPixel(cconf.PianoProps.BeatLength);//一拍长度
+            double BeatPixelLength = pprops.dertTick2dertPixel(pprops.BeatLength);//一拍长度
             if (startPoint.DenominatolTicksBefore != 0)//非完整Beats
             {
                 //起点不在小节线
                 BeatNumber = startPoint.NextWholeBeatNumber;
-                x = x + cconf.PianoProps.dertTick2dertPixel(startPoint.NextWholeBeatDistance);
+                x = x + pprops.dertTick2dertPixel(startPoint.NextWholeBeatDistance);
             }
             int My1 = (rconf.Const_TitleRulerTop * 2 / 3);
             int My2 = rconf.Const_TitleRulerTop + 1;
             while (x <= e.ClipRectangle.Width)
             {
-                if (BeatNumber % cconf.PianoProps.BeatsCountPerSummery == 0)
+                if (BeatNumber % pprops.BeatsCountPerSummery == 0)
                 {
                     g.DrawLine(
-                    new Point((int)x, 0),
-                    new Point((int)x, rconf.Const_TitleHeight),
+                    new Point((int)Math.Round(x, 0), 0),
+                    new Point((int)Math.Round(x, 0), rconf.Const_TitleHeight),
                     Color.White);
-                    long SummeryId=BeatNumber/cconf.PianoProps.BeatsCountPerSummery;
+                    long SummeryId=BeatNumber/pprops.BeatsCountPerSummery;
                     g.DrawText(" "+SummeryId.ToString(),
-                        new Rectangle(new Point((int)x, rconf.Const_TitleLineTop), new Size((int)cconf.PianoProps.BeatLength, rconf.Const_TitleRulerTop - rconf.Const_TitleLineTop)),
+                        new Rectangle(new Point((int)Math.Round(x, 0), rconf.Const_TitleLineTop), new Size((int)pprops.BeatLength, rconf.Const_TitleRulerTop - rconf.Const_TitleLineTop)),
                         Color.White,
                         new Font("宋体", 12));
                 }
                 else
                 {
                     g.DrawLine(
-                    new Point((int)x, My1),
-                    new Point((int)x, My2),
+                    new Point((int)Math.Round(x,0), My1),
+                    new Point((int)Math.Round(x, 0), My2),
                     rconf.TitleColor_Marker);
                 }
                 BeatNumber = BeatNumber + 1;
@@ -216,15 +266,24 @@ namespace BalthasarLib.PianoRollWindow
                 e.ClipRectangle.Width,
                 rconf.Const_TitleHeight
             );//可绘制区域
+            if (TitlePaint != null)
+            {
+                D2DPaintEventArgs d2de = new D2DPaintEventArgs(
+                    e.D2DGraphics,
+                    CurrentRect,
+                    e.MousePoint
+                );
+                TitlePaint(sender, new BalthasarLib.PianoRollWindow.DrawUtils.TitleDrawUtils(d2de, rconf));
+            }
         }
-        private void DrawPianoRoll(BalthasarLib.D2DPainter.D2DPaintEventArgs e)
+        private void DrawPianoRollArea(object sender, BalthasarLib.D2DPainter.D2DPaintEventArgs e)
         {
             D2DGraphics g = e.D2DGraphics;
 
             int y = rconf.Const_TitleHeight;//绘制点纵坐标
-            int cNote = cconf.CurrentTopNote;//绘制区域第一个阶的音符
+            int cNote = (int)pprops.PianoTopNote;//绘制区域第一个阶的音符
             int MyNotePx = (int)((e.MousePoint.Y - rconf.Const_TitleHeight) / rconf.Const_RollNoteHeight);//获取当前琴键
-            int MyNote = cconf.CurrentTopNote - MyNotePx;//获取坐标
+            int MyNote = (int)pprops.PianoTopNote - MyNotePx;//获取坐标
             while (y < e.ClipRectangle.Height)//若未画超界
             {
                 //计算绘制区域
@@ -258,25 +317,6 @@ namespace BalthasarLib.PianoRollWindow
                     g.DrawText("  " + rconf.KeyChar[Key] + Octave.ToString(), WordRect, rconf.PianoColor_BlackKey, new System.Drawing.Font("微软雅黑", 10));
                 }
 
-                /*
-                //计算色域
-                int Octave = rconf.getOctave(cNote);
-                int Key = rconf.getKey(cNote);
-                bool isBlackKey = rconf.KeyIsBlack[Key];
-                Color KeyColor = isBlackKey ? rconf.RollColor_BlackKey_NormalSound : rconf.RollColor_WhiteKey_NormalSound;
-                Color LineColor = rconf.RollColor_LineKey_NormalSound;
-                Color OLineColor = rconf.RollColor_LineOctive_NormalSound;
-                switch (rconf.getVoiceArea(cNote))
-                {
-                    case RollConfigures.VoiceKeyArea.OverSound: KeyColor = isBlackKey ? rconf.RollColor_BlackKey_OverSound : rconf.RollColor_WhiteKey_OverSound; LineColor = rconf.RollColor_LineKey_OverSound; OLineColor = rconf.RollColor_LineOctive_OverSound; break;
-                    case RollConfigures.VoiceKeyArea.NoSound: KeyColor = isBlackKey ? rconf.RollColor_BlackKey_NoSound : rconf.RollColor_WhiteKey_NoSound; LineColor = rconf.RollColor_LineKey_NoSound; OLineColor = rconf.RollColor_LineOctive_OverSound; break;
-                }
-                //绘制矩形
-                g.FillRectangle(Rect, KeyColor);
-                //绘制边线
-                g.DrawLine(LB, RB, (Key == 5 || Key == 0) ? OLineColor : LineColor);//isB ? LineL : LineB);
-                g.DrawText(cNote.ToString() + rconf.KeyChar[Key] + Octave.ToString(), Rect, Color.White, new System.Drawing.Font("宋体", 12));
-                */
                 //递归
                 y = y + rconf.Const_RollNoteHeight;
                 cNote = cNote - 1;
@@ -289,27 +329,154 @@ namespace BalthasarLib.PianoRollWindow
                 rconf.Const_TitleHeight,
                 rconf.Const_RollWidth,
                 e.ClipRectangle.Height - rconf.Const_TitleHeight);//可绘制区域
-        }
 
-        public void RedrawPiano()
-        {
-            d2DPainterBox1.Refresh();
+            if (RollPaint != null)
+            {
+                D2DPaintEventArgs d2de = new D2DPaintEventArgs(
+                    e.D2DGraphics,
+                    CurrentRect,
+                    e.MousePoint
+                    );
+                RollPaint(sender, new BalthasarLib.PianoRollWindow.DrawUtils.RollDrawUtils(d2de,rconf, pprops));
+            }
         }
+        #endregion
 
-        private void noteScrollBar1_Scroll(object sender, ScrollEventArgs e)
+
+        /// <summary>
+        /// 鼠标冒泡事件声明
+        /// </summary>
+        #region
+        // 创建一个委托，返回类型为void，两个参数
+        public delegate void OnMouseEventHandler(object sender, PianoMouseEventArgs e);
+        // 将创建的委托和特定事件关联,在这里特定的事件为KeyDown
+        public event OnMouseEventHandler TrackMouseDown;
+        public event OnMouseEventHandler RollMouseDown;
+        public event OnMouseEventHandler TitleMouseDown;
+        public event OnMouseEventHandler TrackMouseUp;
+        public event OnMouseEventHandler RollMouseUp;
+        public event OnMouseEventHandler TitleMouseUp;
+        public event OnMouseEventHandler TrackMouseMove;
+        public event OnMouseEventHandler RollMouseMove;
+        public event OnMouseEventHandler TitleMouseMove;
+        public event OnMouseEventHandler TrackMouseClick;
+        public event OnMouseEventHandler RollMouseClick;
+        public event OnMouseEventHandler TitleMouseClick;
+        public event OnMouseEventHandler TrackMouseDoubleClick;
+        public event OnMouseEventHandler RollMouseDoubleClick;
+        public event OnMouseEventHandler TitleMouseDoubleClick;
+        public event EventHandler TrackMouseEnter;
+        public event EventHandler RollMouseEnter;
+        public event EventHandler TitleMouseEnter;
+        public event EventHandler TrackMouseLeave;
+        public event EventHandler RollMouseLeave;
+        public event EventHandler TitleMouseLeave;
+        #endregion
+
+        /// <summary>
+        /// 鼠标事件逻辑
+        /// </summary>
+        #region
+        private PianoMouseEventArgs pme_cache;
+        private PianoMouseEventArgs RiseMouseHandle(object sender, MouseEventArgs e, OnMouseEventHandler Roll, OnMouseEventHandler Title, OnMouseEventHandler Track)
         {
-            cconf.CurrentTopNote = rconf.MaxNoteNumber - noteScrollBar1.Value;
-            d2DPainterBox1.Refresh();
+            PianoMouseEventArgs pme = new PianoMouseEventArgs(e);
+            pme.CalcAxis(pprops, rconf, pme_cache);
+            OnMouseEventHandler Handle = null;
+            switch (pme.Area)
+            {
+                case PianoMouseEventArgs.AreaType.Roll: Handle = Roll; break;
+                case PianoMouseEventArgs.AreaType.Title: Handle = Title; break;
+                case PianoMouseEventArgs.AreaType.Track: Handle = Track; break;
+            }
+            if (Handle != null) Handle(sender, pme);
+            return pme;
         }
-        
+        private bool pme_sendEnterEvent = false;
         private void d2DPainterBox1_MouseMove(object sender, MouseEventArgs e)
         {
             d2DPainterBox1.Refresh();
-        }
 
-        private void PianoRollWindow_Resize(object sender, EventArgs e)
-        {
-            InitGUI();
+            PianoMouseEventArgs pme = new PianoMouseEventArgs(e);
+            pme.CalcAxis(pprops, rconf, pme_cache);
+            OnMouseEventHandler Handle = null;//Move事件
+            EventHandler HandleEnter = null;//Enter事件
+            EventHandler HandleLeave = null;//Leave事件
+            switch (pme.Area)
+            {
+                case PianoMouseEventArgs.AreaType.Roll: Handle = RollMouseMove; HandleEnter = RollMouseEnter; break;
+                case PianoMouseEventArgs.AreaType.Title: Handle = TitleMouseMove; HandleEnter = TitleMouseEnter; break;
+                case PianoMouseEventArgs.AreaType.Track: Handle = TrackMouseMove; HandleEnter = TrackMouseEnter; break;
+            }
+            if (pme_sendEnterEvent)
+            {
+                if (HandleEnter != null) HandleEnter(sender, e);
+            }else if (pme_cache.Area != pme.Area)
+            {
+                switch (pme_cache.Area)
+                {
+                    case PianoMouseEventArgs.AreaType.Roll: HandleLeave = RollMouseLeave; break;
+                    case PianoMouseEventArgs.AreaType.Title: HandleLeave = TitleMouseLeave; break;
+                    case PianoMouseEventArgs.AreaType.Track: HandleLeave = TrackMouseLeave; break;
+                }
+                if (HandleEnter != null) HandleEnter(sender, e);
+                if (HandleLeave != null) HandleLeave(sender, e);
+            }
+            if (Handle != null) Handle(sender, pme);//发送Move
+            pme_cache = pme;
+            pme_sendEnterEvent = false;
+            this.OnMouseMove(e);
         }
+        private void d2DPainterBox1_MouseDown(object sender, MouseEventArgs e)
+        {
+            pme_cache = RiseMouseHandle(sender, e,
+                RollMouseDown,
+                TitleMouseDown,
+                TrackMouseDown);
+            this.OnMouseDown(e);
+        }
+        private void d2DPainterBox1_MouseUp(object sender, MouseEventArgs e)
+        {
+            pme_cache = RiseMouseHandle(sender, e,
+                RollMouseUp,
+                TitleMouseUp,
+                TrackMouseUp);
+            this.OnMouseUp(e);
+        }
+        private void d2DPainterBox1_MouseClick(object sender, MouseEventArgs e)
+        {
+            pme_cache = RiseMouseHandle(sender, e,
+                RollMouseClick,
+                TitleMouseClick,
+                TrackMouseClick);
+            this.OnMouseClick(e);
+        }
+        private void d2DPainterBox1_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            pme_cache = RiseMouseHandle(sender, e,
+                RollMouseDoubleClick,
+                TitleMouseDoubleClick,
+                TrackMouseDoubleClick);
+            this.OnMouseDoubleClick(e);
+        }
+        private void d2DPainterBox1_MouseEnter(object sender, EventArgs e)
+        {
+            this.OnMouseEnter(e);
+            pme_sendEnterEvent = true;
+        }
+        private void d2DPainterBox1_MouseLeave(object sender, EventArgs e)
+        {
+            EventHandler Handle = null;
+            switch (pme_cache.Area)
+            {
+                case PianoMouseEventArgs.AreaType.Roll: Handle = RollMouseLeave; break;
+                case PianoMouseEventArgs.AreaType.Title: Handle = RollMouseLeave; break;
+                case PianoMouseEventArgs.AreaType.Track: Handle = RollMouseLeave; break;
+            }
+            if (Handle != null) Handle(sender, e);
+            pme_sendEnterEvent = false;
+            this.OnMouseLeave(e);
+        }
+        #endregion
     }
 }
