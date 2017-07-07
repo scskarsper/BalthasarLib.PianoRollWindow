@@ -40,5 +40,50 @@ namespace BalthasarLib.PianoRollWindow
             BeatsCountPerSummery = 4;
             BeatType = NoteType.Crotchet;
         }
+
+        private uint _crotchetLengthPixel = 66;
+        public uint CrotchetLengthPixel
+        {
+            get { return _crotchetLengthPixel; }
+            set
+            {
+                if (value < 3)
+                {
+                    _crotchetLengthPixel = 3;
+                }
+                else
+                {
+                    _crotchetLengthPixel = value;
+                }
+            } 
+        }
+        public long dertTick2dertPixel(long dertTick)
+        {
+            double PixelPerTick = (double)(_crotchetLengthPixel*4) / SemibreveLength;
+            double ret = dertTick * PixelPerTick;
+            return (long)ret;
+        }
+        public long dertPixel2dertTick(long dertPixel)
+        {
+            double PixelPerTick = (double)(_crotchetLengthPixel * 4) / SemibreveLength;
+            double ret = dertPixel/PixelPerTick;
+            return (long)ret;
+        }
+
+        private uint _pianoStartTick=0;
+        public uint PianoStartTick
+        {
+            get
+            {
+                return _pianoStartTick;
+            }
+            set
+            {
+                if(value!=_pianoStartTick)
+                {
+                    _pianoStartTick = value;
+                }
+            }
+        }
     }
 }

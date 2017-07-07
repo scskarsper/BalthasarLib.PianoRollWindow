@@ -15,6 +15,7 @@ namespace BalthasarLib.PianoRollWindow
         public int Const_RollWidth = 82;//琴键宽
         public int Const_RollBlackWidth = 48;//琴键黑宽
         public int Const_RollNoteHeight = 13;//琴键高
+        public int Const_VScrollBarWidth = 19;
         public int MaxNoteNumber = 127;
         public int MinNoteNumber = 0;
 
@@ -85,6 +86,7 @@ namespace BalthasarLib.PianoRollWindow
             TitleColor_Line = Color.FromArgb(35, 105, 107);
             TitleColor_Ruler = Color.FromArgb(91,91,91);
             TitleColor_Marker = Color.FromArgb(131,131,131);
+
         }
     }
 }

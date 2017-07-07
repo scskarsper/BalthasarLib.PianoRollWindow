@@ -34,7 +34,7 @@ namespace BalthasarLib.PianoRollWindow
             cconf.CurrentTopNote = rconf.MaxNoteNumber - noteScrollBar1.Value;
             InitGUI();
         }
-
+        
         void InitGUI()
         {
             int noteArea = this.ClientRectangle.Height - rconf.Const_TitleHeight;
@@ -48,18 +48,20 @@ namespace BalthasarLib.PianoRollWindow
             noteScrollBar1.Maximum = ScrollMax;
             noteScrollBar1.Height = this.ClientRectangle.Height - rconf.Const_TitleHeight;
             noteScrollBar1.Top = rconf.Const_TitleHeight;
+            noteScrollBar1.Width = rconf.Const_VScrollBarWidth;
             d2DPainterBox1.Top = 0;
             d2DPainterBox1.Left = 0;
-            d2DPainterBox1.Width = this.ClientRectangle.Width - noteScrollBar1.Width;
+            d2DPainterBox1.Width = this.ClientRectangle.Width;
             d2DPainterBox1.Height = this.ClientRectangle.Height;
         }
 
         private void d2DPainterBox1_D2DPaint(object sender, BalthasarLib.D2DPainter.D2DPaintEventArgs e)
         {
-            DrawPianoArea(e);
+            PianoRollPoint sp=cconf.getPianoStartPoint();
+            DrawPianoArea(e,sp);
             DrawPianoMouseAxis(e);
             DrawPianoRoll(e);
-            DrawPianoTitle(e);
+            DrawPianoTitle(e, sp);
         }
 
         private void DrawPianoMouseAxis(BalthasarLib.D2DPainter.D2DPaintEventArgs e)
@@ -72,20 +74,22 @@ namespace BalthasarLib.PianoRollWindow
             g.DrawLine(L1_p1, L1_p2, Color.Red, 1);
             g.DrawLine(L2_p1, L2_p2, Color.Red, 1);
         }
-        private void DrawPianoArea(BalthasarLib.D2DPainter.D2DPaintEventArgs e)
+        private void DrawPianoArea(BalthasarLib.D2DPainter.D2DPaintEventArgs e, PianoRollPoint startPoint)
         {
             D2DGraphics g = e.D2DGraphics;
 
             int y = rconf.Const_TitleHeight;//绘制点纵坐标
+            int w = e.ClipRectangle.Width - rconf.Const_VScrollBarWidth;
+            //绘制钢琴窗
             int cNote = cconf.CurrentTopNote;//绘制区域第一个阶的音符
             while (y < e.ClipRectangle.Height)//若未画超界
             {
                 //计算绘制区域
                 Point LT = new Point(rconf.Const_RollWidth, y);//矩形左上角
                 Point LB = new Point(rconf.Const_RollWidth, y + rconf.Const_RollNoteHeight);//矩形左下角
-                Point RT = new Point(e.ClipRectangle.Width, y);//矩形右上角
-                Point RB = new Point(e.ClipRectangle.Width, y + rconf.Const_RollNoteHeight);//矩形右下角
-                Rectangle Rect = new Rectangle(LT, new Size(e.ClipRectangle.Width - rconf.Const_RollWidth, rconf.Const_RollNoteHeight));//矩形区域
+                Point RT = new Point(w, y);//矩形右上角
+                Point RB = new Point(w, y + rconf.Const_RollNoteHeight);//矩形右下角
+                Rectangle Rect = new Rectangle(LT, new Size(w - rconf.Const_RollWidth, rconf.Const_RollNoteHeight));//矩形区域
                 //计算色域
                 int Octave = rconf.getOctave(cNote);
                 int Key = rconf.getKey(cNote);
@@ -107,24 +111,44 @@ namespace BalthasarLib.PianoRollWindow
                 y = y + rconf.Const_RollNoteHeight;
                 cNote = cNote - 1;
             }
+            //绘制分节符
 
+            //初始化
+            long x = rconf.Const_RollWidth;//起点画线
+            long BeatNumber = startPoint.BeatNumber;//获取起点拍号
+            long BeatPixelLength = cconf.PianoProps.dertTick2dertPixel(cconf.PianoProps.BeatLength);//一拍长度
+            if (startPoint.DenominatolTicksBefore!=0)//非完整Beats
+            {
+                //起点不在小节线
+                BeatNumber=startPoint.NextWholeBeatNumber;
+                x = x+cconf.PianoProps.dertTick2dertPixel(startPoint.NextWholeBeatDistance);
+            }
+            while (x <= w)
+            {
+                g.DrawLine(
+                new Point((int)x, rconf.Const_TitleHeight),
+                new Point((int)x, e.ClipRectangle.Height),
+                BeatNumber % cconf.PianoProps.BeatsCountPerSummery == 0 ? Color.Black : rconf.RollColor_LineOctive_NormalSound
+                );
+                BeatNumber=BeatNumber+1;
+                x = x + BeatPixelLength;
+            }
+            //Rise 绘制Note等//传递事件
             Rectangle CurrentRect = new Rectangle(
                 rconf.Const_RollWidth,
                 rconf.Const_TitleHeight,
-                e.ClipRectangle.Width-rconf.Const_RollWidth,
+                w-rconf.Const_RollWidth,
                 e.ClipRectangle.Height-rconf.Const_TitleHeight);//可绘制区域
-                
-            //Rise 绘制Note等//传递事件
 
-            Random rnd = new Random(DateTime.Now.Millisecond);
+            /*Random rnd = new Random(DateTime.Now.Millisecond);
             for (int i = 0; i < 10000; i++)
             {
-                Point p1 = new Point(rnd.Next(0, e.ClipRectangle.Width), rnd.Next(0, e.ClipRectangle.Height));
-                Point p2 = new Point(rnd.Next(0, e.ClipRectangle.Width), rnd.Next(0, e.ClipRectangle.Height));
+                Point p1 = new Point(rnd.Next(0, w), rnd.Next(0, e.ClipRectangle.Height));
+                Point p2 = new Point(rnd.Next(0, w), rnd.Next(0, e.ClipRectangle.Height));
                 g.DrawLine(p1, p2, Color.Red);
-            }
+            }*/
         }
-        private void DrawPianoTitle(BalthasarLib.D2DPainter.D2DPaintEventArgs e)
+        private void DrawPianoTitle(BalthasarLib.D2DPainter.D2DPaintEventArgs e, PianoRollPoint startPoint)
         {
             D2DGraphics g = e.D2DGraphics;
             Rectangle BlackRect = new Rectangle(
@@ -142,10 +166,50 @@ namespace BalthasarLib.PianoRollWindow
             );
             g.DrawLine(new Point(0, rconf.Const_TitleLineTop), new Point(e.ClipRectangle.Width, rconf.Const_TitleLineTop), rconf.TitleColor_Line,2);
             g.DrawLine(new Point(0, rconf.Const_TitleRulerTop), new Point(e.ClipRectangle.Width, rconf.Const_TitleRulerTop), rconf.TitleColor_Ruler,2);
+            
+            //绘制分节符
 
-            g.DrawLine(new Point(rconf.Const_RollWidth, 0), new Point(rconf.Const_RollWidth, rconf.Const_TitleHeight), Color.White, 2); 
+            //初始化
+            long x = rconf.Const_RollWidth;//起点画线
+            long BeatNumber = startPoint.BeatNumber;//获取起点拍号
+            long BeatPixelLength = cconf.PianoProps.dertTick2dertPixel(cconf.PianoProps.BeatLength);//一拍长度
+            if (startPoint.DenominatolTicksBefore != 0)//非完整Beats
+            {
+                //起点不在小节线
+                BeatNumber = startPoint.NextWholeBeatNumber;
+                x = x + cconf.PianoProps.dertTick2dertPixel(startPoint.NextWholeBeatDistance);
+            }
+            int My1 = (rconf.Const_TitleRulerTop * 2 / 3);
+            int My2 = rconf.Const_TitleRulerTop + 1;
+            while (x <= e.ClipRectangle.Width)
+            {
+                if (BeatNumber % cconf.PianoProps.BeatsCountPerSummery == 0)
+                {
+                    g.DrawLine(
+                    new Point((int)x, 0),
+                    new Point((int)x, rconf.Const_TitleHeight),
+                    Color.White);
+                    long SummeryId=BeatNumber/cconf.PianoProps.BeatsCountPerSummery;
+                    g.DrawText(" "+SummeryId.ToString(),
+                        new Rectangle(new Point((int)x, rconf.Const_TitleLineTop), new Size((int)cconf.PianoProps.BeatLength, rconf.Const_TitleRulerTop - rconf.Const_TitleLineTop)),
+                        Color.White,
+                        new Font("宋体", 12));
+                }
+                else
+                {
+                    g.DrawLine(
+                    new Point((int)x, My1),
+                    new Point((int)x, My2),
+                    rconf.TitleColor_Marker);
+                }
+                BeatNumber = BeatNumber + 1;
+                x = x + BeatPixelLength;
+            }
+
+            //绘制分割线
+            g.DrawLine(new Point(rconf.Const_RollWidth, 0), new Point(rconf.Const_RollWidth, rconf.Const_TitleHeight), Color.White, 2);
             g.FillRectangle(TitleSpliterRect, rconf.PianoColor_WhiteKey);
-                
+
             Rectangle CurrentRect = new Rectangle(
                 0,
                 0,

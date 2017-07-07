@@ -59,7 +59,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.Red;
+            this.BackColor = System.Drawing.Color.Black;
             this.Controls.Add(this.noteScrollBar1);
             this.Controls.Add(this.d2DPainterBox1);
             this.Margin = new System.Windows.Forms.Padding(2);
