@@ -9,7 +9,9 @@ namespace BalthasarLib.PianoRollWindow
     class RollConfigures
     {
         public int Const_TitleHeight = 28;//标题头大小
-        public int Const_TitleHeightSpliter = 4;//标题头分割线先高
+        public int Const_TitleHeightSpliter = 3;//标题头分割线先高
+        public int Const_TitleLineTop = 6;//标题头分割线先高
+        public int Const_TitleRulerTop = 20;//标题头分割线先高
         public int Const_RollWidth = 82;//琴键宽
         public int Const_RollBlackWidth = 48;//琴键黑宽
         public int Const_RollNoteHeight = 13;//琴键高
@@ -32,6 +34,10 @@ namespace BalthasarLib.PianoRollWindow
         public Color PianoColor_BlackKey;
         public Color PianoColor_MouseKey;
         public Color PianoColor_Line;
+
+        public Color TitleColor_Line;
+        public Color TitleColor_Ruler;
+        public Color TitleColor_Marker;
 
         public string[] KeyChar = {"C","C#","D","Eb","E","F","F#","G","G#","A","Bb","B" };
         public bool[] KeyIsBlack = {false,true,false,true,false,false,true,false,true,false,true,false };
@@ -68,13 +74,17 @@ namespace BalthasarLib.PianoRollWindow
             RollColor_LineKey_NormalSound = Color.FromArgb(170, 170, 170);
             RollColor_LineKey_OverSound = Color.FromArgb(113, 113, 113);
             RollColor_LineKey_NoSound = Color.FromArgb(75, 75, 75);
-            RollColor_LineOctive_OverSound = Color.FromArgb(230, 230, 230);
+            RollColor_LineOctive_OverSound = Color.FromArgb(75, 75, 75);
             RollColor_LineOctive_NormalSound = Color.FromArgb(189, 184, 154);
 
             PianoColor_WhiteKey = Color.FromArgb(240, 240, 240);
             PianoColor_BlackKey = Color.FromArgb(49, 49, 49);
             PianoColor_Line = Color.FromArgb(220, 220, 220);
             PianoColor_MouseKey = Color.FromArgb(11, 233, 244);
+
+            TitleColor_Line = Color.FromArgb(35, 105, 107);
+            TitleColor_Ruler = Color.FromArgb(91,91,91);
+            TitleColor_Marker = Color.FromArgb(131,131,131);
         }
     }
 }

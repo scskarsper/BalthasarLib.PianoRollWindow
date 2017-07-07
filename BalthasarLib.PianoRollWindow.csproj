@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PianoProperties.cs" />
     <Compile Include="CurrentConfigure.cs" />
     <Compile Include="PianoRollWindow.cs">
       <SubType>UserControl</SubType>
@@ -57,7 +58,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BalthasarLib.SharpDX.D2Painter\BalthasarLib.D2DPainter.csproj">
+    <ProjectReference Include="..\BalthasarLib.D2DPainter\BalthasarLib.D2DPainter.csproj">
       <Project>{8b6ba8cc-95bc-4599-95cb-a97d2b2ae1d6}</Project>
       <Name>BalthasarLib.D2DPainter</Name>
     </ProjectReference>

@@ -7,6 +7,7 @@ namespace BalthasarLib.PianoRollWindow
 {
     class CurrentConfigure
     {
+        public PianoProperties PianoProps = new PianoProperties();
         RollConfigures rconf;
         public CurrentConfigure(RollConfigures rconf)
         {
@@ -35,6 +36,5 @@ namespace BalthasarLib.PianoRollWindow
                 }
             }
         }
-
     }
 }
