@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using BalthasarLib.D2DPainter;
+using BalthasarLib.PianoRollWindow.Models;
 
 namespace BalthasarLib.PianoRollWindow
 {
@@ -19,6 +20,10 @@ namespace BalthasarLib.PianoRollWindow
         #region
         RollConfigures rconf = new RollConfigures();
         PianoProperties pprops;
+        uint MaxShownNote;
+        uint MinShownNote;
+        double ShownNoteCount;
+        double ShownTickCount;
         #endregion
 
         /// <summary>
@@ -37,17 +42,51 @@ namespace BalthasarLib.PianoRollWindow
             PianoProps.PianoStartTick = Tick;
             d2DPainterBox1.Refresh();
         }
-        public void setPianoTopNote(uint NoteNumber)
+        public void setScrollToNote(uint NoteNumber)
         {
-            PianoProps.PianoTopNote = NoteNumber;
+            uint halfNote=(uint)ShownNoteCount/2;//获取一半的Note号
+            
+            uint TopNote = NoteNumber + halfNote;//获取在屏幕中间时的Note号;
+            uint ZeroTop = (uint)(ShownNoteCount > (int)ShownNoteCount ? ShownNoteCount + 1 : ShownNoteCount);//获取极限值.
+
+            uint TargetTop = ZeroTop;
+            if (TopNote > ZeroTop)
+            {
+                //没超界
+                TargetTop = TopNote;
+            }
+            if (TopNote > rconf.MaxNoteNumber) TargetTop = (uint)rconf.MaxNoteNumber;
+           // if (NoteNumber == 0) NoteNumber = 1;
+           // int TopNote = rconf.MaxNoteNumber - (int)NoteNumber;
+            pprops.PianoTopNote = TargetTop;// (uint)(TopNote > 0 ? TopNote : 0);
+            noteScrollBar1.Value = rconf.MaxNoteNumber-(int)TargetTop;
             d2DPainterBox1.Refresh();
         }
+
+        public uint MaxShownNoteNumber { get { return pprops.PianoTopNote; } }
+        public uint MinShownNoteNumber { get { return MaxShownNoteNumber - (uint)(ShownNoteCount > (int)ShownNoteCount ? ShownNoteCount + 1 : ShownNoteCount); } }
+        public long MaxShownTick { get { return MinShownTick+(long)Math.Round(ShownTickCount,0); } }
+        public long MinShownTick { get { return pprops.PianoStartTick; } }
+        public bool IsInitalized { get { return (pprops!=null && rconf!=null);} }
         #endregion
-        
+
+        /// <summary>
+        /// 界面冒泡事件声明
+        /// </summary>
+        #region
+        // 将创建的委托和特定事件关联,在这里特定的事件为KeyDown
+        public event EventHandler PianoRollBeforeResize;
+        public event EventHandler PianoRollAfterResize;
+        #endregion
         /// <summary>
         /// 基础逻辑-私有
         /// </summary>
         #region
+        void genShownArea()
+        {
+            ShownNoteCount = (double)(d2DPainterBox1.ClientRectangle.Height - rconf.Const_TitleHeight) / rconf.Const_RollNoteHeight;
+            ShownTickCount = pprops.dertPixel2dertTick(d2DPainterBox1.ClientRectangle.Width-rconf.Const_RollWidth);
+        }
         void InitGUI()
         {
             int noteArea = this.ClientRectangle.Height - rconf.Const_TitleHeight;
@@ -67,10 +106,13 @@ namespace BalthasarLib.PianoRollWindow
             d2DPainterBox1.Left = 0;
             d2DPainterBox1.Width = this.ClientRectangle.Width;
             d2DPainterBox1.Height = this.ClientRectangle.Height;
+            if(pprops!=null)genShownArea();
         }
         private void PianoRollWindow_Resize(object sender, EventArgs e)
         {
+            if (PianoRollBeforeResize != null) PianoRollBeforeResize(sender, e);
             InitGUI();
+            if (PianoRollAfterResize != null) PianoRollAfterResize(sender, e);
         }
         private void noteScrollBar1_Scroll(object sender, ScrollEventArgs e)
         {
@@ -142,9 +184,10 @@ namespace BalthasarLib.PianoRollWindow
                 Point RB = new Point(w, y + rconf.Const_RollNoteHeight);//矩形右下角
                 Rectangle Rect = new Rectangle(LT, new Size(w - rconf.Const_RollWidth, rconf.Const_RollNoteHeight));//矩形区域
                 //计算色域
-                int Octave = rconf.getOctave(cNote);
-                int Key = rconf.getKey(cNote);
-                bool isBlackKey = rconf.KeyIsBlack[Key];
+                PitchValuePair NoteValue = new PitchValuePair((uint)cNote, 0);
+                int Octave = NoteValue.Octave;
+                int Key = NoteValue.Key;
+                bool isBlackKey = NoteValue.IsBlackKey;
                 Color KeyColor = isBlackKey ? rconf.RollColor_BlackKey_NormalSound : rconf.RollColor_WhiteKey_NormalSound;
                 Color LineColor = rconf.RollColor_LineKey_NormalSound;
                 Color OLineColor = rconf.RollColor_LineOctive_NormalSound;
@@ -298,9 +341,10 @@ namespace BalthasarLib.PianoRollWindow
                 g.FillRectangle(WhiteRect, rconf.PianoColor_WhiteKey);
                 g.DrawRectangle(WhiteRect, rconf.PianoColor_Line);
                 //绘制黑键
-                int Octave = rconf.getOctave(cNote);
-                int Key = rconf.getKey(cNote);
-                bool isBlackKey = rconf.KeyIsBlack[Key];
+                PitchValuePair NoteValue = new PitchValuePair((uint)cNote, 0);
+                int Octave = NoteValue.Octave;
+                int Key = NoteValue.Key;
+                bool isBlackKey = NoteValue.IsBlackKey;
                 if (isBlackKey)
                 {
                     g.FillRectangle(BlackRect, rconf.PianoColor_BlackKey);
@@ -310,11 +354,11 @@ namespace BalthasarLib.PianoRollWindow
                 if (MyNote == cNote)
                 {
                     g.FillRectangle(WordRect, rconf.PianoColor_MouseKey);
-                    g.DrawText("  " + rconf.KeyChar[Key] + Octave.ToString(), WordRect, rconf.PianoColor_BlackKey, new System.Drawing.Font("微软雅黑", 10));
+                    g.DrawText("  " + NoteValue.NoteChar + Octave.ToString(), WordRect, rconf.PianoColor_BlackKey, new System.Drawing.Font("Tahoma", 10));
                 }
                 else if (Key == 0)
                 {
-                    g.DrawText("  " + rconf.KeyChar[Key] + Octave.ToString(), WordRect, rconf.PianoColor_BlackKey, new System.Drawing.Font("微软雅黑", 10));
+                    g.DrawText("  " + NoteValue.NoteChar + Octave.ToString(), WordRect, rconf.PianoColor_BlackKey, new System.Drawing.Font("Tahoma", 10));
                 }
 
                 //递归

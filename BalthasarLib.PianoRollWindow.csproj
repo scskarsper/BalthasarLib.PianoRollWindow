@@ -46,7 +46,9 @@
     <Compile Include="DrawUtils\TitleDrawUtils.cs" />
     <Compile Include="Models\PianoMouseEventArgs.cs" />
     <Compile Include="Configures\PianoProperties.cs" />
+    <Compile Include="Models\PianoNote.cs" />
     <Compile Include="Models\PianoRollPoint.cs" />
+    <Compile Include="Models\PitchNode.cs" />
     <Compile Include="PianoRollWindow.cs">
       <SubType>UserControl</SubType>
     </Compile>

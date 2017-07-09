@@ -31,6 +31,8 @@ namespace BalthasarLib.PianoRollWindow
         public Color RollColor_LineOctive_OverSound;//大跨度分割线
         public Color RollColor_LineOctive_NormalSound;//大跨度分割线
 
+        public Color RollColor_NoteBorderColor;//边框线
+
         public Color PianoColor_WhiteKey;
         public Color PianoColor_BlackKey;
         public Color PianoColor_MouseKey;
@@ -40,17 +42,6 @@ namespace BalthasarLib.PianoRollWindow
         public Color TitleColor_Ruler;
         public Color TitleColor_Marker;
 
-        public string[] KeyChar = {"C","C#","D","Eb","E","F","F#","G","G#","A","Bb","B" };
-        public bool[] KeyIsBlack = {false,true,false,true,false,false,true,false,true,false,true,false };
-        public int getOctave(int NoteNumber)
-        {
-            int K=(int)((double)NoteNumber / 12);
-            return K - 2;
-        }
-        public int getKey(int NoteNumber)
-        {
-            return NoteNumber % 12;
-        }
         public enum VoiceKeyArea
         {
             Normal,
@@ -59,7 +50,8 @@ namespace BalthasarLib.PianoRollWindow
         }
         public VoiceKeyArea getVoiceArea(int NoteNumber)
         {
-            int Oc = getOctave(NoteNumber);
+            int K = (int)((double)NoteNumber / 12);
+            int Oc = K - 2;
             if (Oc == 0 || Oc==5) return VoiceKeyArea.OverSound;
             if (Oc < 0 || Oc > 5 ) return VoiceKeyArea.NoSound;
             return VoiceKeyArea.Normal;
@@ -87,6 +79,7 @@ namespace BalthasarLib.PianoRollWindow
             TitleColor_Ruler = Color.FromArgb(91,91,91);
             TitleColor_Marker = Color.FromArgb(131,131,131);
 
+            RollColor_NoteBorderColor = Color.FromArgb(125, 123, 124);
         }
     }
 }
