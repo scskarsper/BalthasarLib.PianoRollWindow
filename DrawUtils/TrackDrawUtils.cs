@@ -128,7 +128,7 @@ namespace BalthasarLib.PianoRollWindow.DrawUtils
 
             uint NoteDistance = MaxNote - Node.PitchValue.NoteNumber;
             double PitchDistance=(double)Node.PitchValue.PitchValue-Node.PitchValue.NoteNumber-0.5;
-            int NodeYPixel=baseEvent.ClipRectangle.Top +  (int)(((double)NoteDistance+PitchDistance) * rconf.Const_RollNoteHeight);
+            int NodeYPixel=baseEvent.ClipRectangle.Top +  (int)(((double)NoteDistance+PitchDistance+1) * rconf.Const_RollNoteHeight);
             return new Point(NodeXPixel,NodeYPixel);
         }
         public void DrawPitchLine(List<PitchNode> SortedPitchPointSilk, Color LineColor, float LineWidth, System.Drawing.Drawing2D.DashStyle LineStyle)

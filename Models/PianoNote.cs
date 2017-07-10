@@ -12,7 +12,7 @@ namespace BalthasarLib.PianoRollWindow.Models
         /// </summary>
         #region
         private const uint SemibreveLength = 1920;
-
+        public BalthasarLib.PianoRollWindow.PitchValuePair.OctaveTypeEnum OctaveType { get { return this.pvp.OctaveType; } set { this.pvp.OctaveType = value; } }
         public PianoNote(long Tick,BalthasarLib.PianoRollWindow.PianoProperties.NoteType NoteType,PitchValuePair PitchValue)
         {
             this.pvp = PitchValue;

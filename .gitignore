@@ -2,3 +2,7 @@
 /bin/Debug/*.dll
 /obj/Debug
 /bin/Debug
+/Demos/BalthasarLib.MidiWorker/BalthasarLib.MidiWorker/bin/Debug
+/Demos/BalthasarLib.MidiWorker/BalthasarLib.MidiWorker/obj/Debug
+/Demos/Demo.MIDIViewer/Demo.MIDIViewer/bin/Debug
+/Demos/Demo.MIDIViewer/Demo.MIDIViewer/obj/Debug

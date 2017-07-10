@@ -24,16 +24,24 @@ namespace BalthasarLib.PianoRollWindow
         int _pw;
         int _key;
         int _octave;
+        public enum OctaveTypeEnum
+        {
+            Piano,
+            Voice
+        }
+        private OctaveTypeEnum otype = OctaveTypeEnum.Voice;
+        public OctaveTypeEnum OctaveType { get { return otype; } set { otype = value; } }
         public double PitchValue { get { return _pv; } }
         public uint NoteNumber { get { return _nn; } }
         public int PitchWheel { get { return _pw; } }
-        public PitchValuePair(uint NoteNumber, int PitchWheel)
+        public PitchValuePair(uint NoteNumber, int PitchWheel, uint PBS=1)
         {
+            if (PBS < 1) PBS = 1;
             _nn = NoteNumber;
             _pw = PitchWheel;
             if (PitchWheel != 0)
             {
-                _pv = ((double)_pw / 0x2000) + _nn;
+                _pv = (((double)_pw / 0x2000) * PBS) + _nn;
             }
             else
             {
@@ -42,8 +50,9 @@ namespace BalthasarLib.PianoRollWindow
             _key = getKey(_nn);
             _octave = getOctave(_nn);
         }
-        public PitchValuePair(double PitchValue)
+        public PitchValuePair(double PitchValue, uint PBS = 1)
         {
+            if (PBS < 1) PBS = 1;
             _pv = PitchValue;
 
             _nn = (uint)_pv;
@@ -54,7 +63,7 @@ namespace BalthasarLib.PianoRollWindow
                 pr = _pv - _nn;
             }
 
-            _pw = (int)Math.Round(pr * 0x2000, 0);
+            _pw = (int)Math.Round(pr * ((double)0x2000/PBS), 0);
             _key = getKey(_nn);
             _octave = getOctave(_nn);
         }
@@ -62,7 +71,14 @@ namespace BalthasarLib.PianoRollWindow
         {
              get
              {
-                 return _octave;
+                 if (otype == OctaveTypeEnum.Piano)
+                 {
+                     return _octave+1;
+                 }
+                 else
+                 {
+                     return _octave;
+                 }
              }
         }
         public int Key

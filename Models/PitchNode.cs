@@ -9,6 +9,7 @@ namespace BalthasarLib.PianoRollWindow.Models
     {
         public long Tick { get; set; }
         public long Length { get; set; }
+        public BalthasarLib.PianoRollWindow.PitchValuePair.OctaveTypeEnum OctaveType { get { return this.pvp.OctaveType; } set { this.pvp.OctaveType = value; } }
         public PitchNode(long Tick, double PitchValue)
         {
             this.pvp = new PitchValuePair(PitchValue);

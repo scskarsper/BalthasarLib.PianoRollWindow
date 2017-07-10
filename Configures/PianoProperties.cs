@@ -43,8 +43,11 @@ namespace BalthasarLib.PianoRollWindow
             this.rconf = rconf;
         }
 
+        BalthasarLib.PianoRollWindow.PitchValuePair.OctaveTypeEnum _octaveType = BalthasarLib.PianoRollWindow.PitchValuePair.OctaveTypeEnum.Voice;
+        internal BalthasarLib.PianoRollWindow.PitchValuePair.OctaveTypeEnum OctaveType { get { return _octaveType; } set { _octaveType = value; } }
+        
         private uint _crotchetLengthPixel = 66;
-        public uint CrotchetLengthPixel
+        internal uint CrotchetLengthPixel
         {
             get { return _crotchetLengthPixel; }
             set

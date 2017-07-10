@@ -30,12 +30,27 @@ namespace BalthasarLib.PianoRollWindow
         /// 公共属性
         /// </summary>
         #region
+        public BalthasarLib.PianoRollWindow.PitchValuePair.OctaveTypeEnum OctaveType 
+        {
+            get { return pprops.OctaveType; }
+            set
+            {
+                pprops.OctaveType = value;
+                d2DPainterBox1.Refresh();
+            } 
+        }
+
         public PianoProperties PianoProps
         {
             get
             {
                 return pprops;
             }
+        }
+        public void setCrotchetSize(uint Size=66)
+        {
+            pprops.CrotchetLengthPixel = Size;
+            d2DPainterBox1.Refresh();
         }
         public void setPianoStartTick(long Tick)
         {
@@ -185,7 +200,8 @@ namespace BalthasarLib.PianoRollWindow
                 Rectangle Rect = new Rectangle(LT, new Size(w - rconf.Const_RollWidth, rconf.Const_RollNoteHeight));//矩形区域
                 //计算色域
                 PitchValuePair NoteValue = new PitchValuePair((uint)cNote, 0);
-                int Octave = NoteValue.Octave;
+                NoteValue.OctaveType = pprops.OctaveType;
+                int Octave = NoteValue.OctaveType == PitchValuePair.OctaveTypeEnum.Voice ? NoteValue.Octave : NoteValue.Octave-1;
                 int Key = NoteValue.Key;
                 bool isBlackKey = NoteValue.IsBlackKey;
                 Color KeyColor = isBlackKey ? rconf.RollColor_BlackKey_NormalSound : rconf.RollColor_WhiteKey_NormalSound;
@@ -342,6 +358,7 @@ namespace BalthasarLib.PianoRollWindow
                 g.DrawRectangle(WhiteRect, rconf.PianoColor_Line);
                 //绘制黑键
                 PitchValuePair NoteValue = new PitchValuePair((uint)cNote, 0);
+                NoteValue.OctaveType = pprops.OctaveType;
                 int Octave = NoteValue.Octave;
                 int Key = NoteValue.Key;
                 bool isBlackKey = NoteValue.IsBlackKey;

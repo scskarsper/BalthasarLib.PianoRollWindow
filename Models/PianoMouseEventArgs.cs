@@ -67,6 +67,7 @@ namespace BalthasarLib.PianoRollWindow
                 double cent=0.5-drawed_noteSpt+(uint)drawed_noteSpt;
                 int _notePitchWheel = (int)Math.Round(cent * 0x2000, 0);
                 _pitchvp=new PitchValuePair(_noteNumber,_notePitchWheel);
+                _pitchvp.OctaveType = pprops.OctaveType;
             }
             if (_area != AreaType.Roll)
             {

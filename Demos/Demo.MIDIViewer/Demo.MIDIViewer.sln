@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demo.MIDIViewer", "Demo.MIDIViewer\Demo.MIDIViewer.csproj", "{78E9AC6E-746A-4AE5-A20E-64F9BA918FF6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BalthasarLib.D2DPainter", "E:\GitPool\PianoWindows\BalthasarLib.D2DPainter\BalthasarLib.D2DPainter.csproj", "{8B6BA8CC-95BC-4599-95CB-A97D2B2AE1D6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BalthasarLib.PianoRollWindow", "E:\GitPool\PianoWindows\BalthasarLib.PianoRollWindow\BalthasarLib.PianoRollWindow.csproj", "{EFA2E299-FE79-4BE5-9197-7EE86AE97EAA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BalthasarLib.MidiWorker", "..\BalthasarLib.MidiWorker\BalthasarLib.MidiWorker\BalthasarLib.MidiWorker.csproj", "{731A3F33-60CD-4729-94E9-AE3C97512EE0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{78E9AC6E-746A-4AE5-A20E-64F9BA918FF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78E9AC6E-746A-4AE5-A20E-64F9BA918FF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78E9AC6E-746A-4AE5-A20E-64F9BA918FF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78E9AC6E-746A-4AE5-A20E-64F9BA918FF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B6BA8CC-95BC-4599-95CB-A97D2B2AE1D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B6BA8CC-95BC-4599-95CB-A97D2B2AE1D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B6BA8CC-95BC-4599-95CB-A97D2B2AE1D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B6BA8CC-95BC-4599-95CB-A97D2B2AE1D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EFA2E299-FE79-4BE5-9197-7EE86AE97EAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFA2E299-FE79-4BE5-9197-7EE86AE97EAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFA2E299-FE79-4BE5-9197-7EE86AE97EAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFA2E299-FE79-4BE5-9197-7EE86AE97EAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{731A3F33-60CD-4729-94E9-AE3C97512EE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{731A3F33-60CD-4729-94E9-AE3C97512EE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{731A3F33-60CD-4729-94E9-AE3C97512EE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{731A3F33-60CD-4729-94E9-AE3C97512EE0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
