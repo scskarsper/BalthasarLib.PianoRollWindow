@@ -44,11 +44,21 @@
     <Compile Include="DrawUtils\RollDrawUtils.cs" />
     <Compile Include="DrawUtils\DrawUtils.cs" />
     <Compile Include="DrawUtils\TitleDrawUtils.cs" />
+    <Compile Include="DrawUtils\ParamAreaDrawUtils.cs" />
+    <Compile Include="DrawUtils\ParamBtnsDrawUtils.cs" />
+    <Compile Include="Models\ParamValuePair.cs" />
     <Compile Include="Models\PianoMouseEventArgs.cs" />
     <Compile Include="Configures\PianoProperties.cs" />
     <Compile Include="Models\PianoNote.cs" />
     <Compile Include="Models\PianoRollPoint.cs" />
     <Compile Include="Models\PitchNode.cs" />
+    <Compile Include="Models\ParamMouseEventArgs.cs" />
+    <Compile Include="ParametersWindow.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ParametersWindow.Designer.cs">
+      <DependentUpon>ParametersWindow.cs</DependentUpon>
+    </Compile>
     <Compile Include="PianoRollWindow.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -61,6 +71,9 @@
     <Compile Include="DrawUtils\TrackDrawUtils.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="ParametersWindow.resx">
+      <DependentUpon>ParametersWindow.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="PianoRollWindow.resx">
       <DependentUpon>PianoRollWindow.cs</DependentUpon>
     </EmbeddedResource>

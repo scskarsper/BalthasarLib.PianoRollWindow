@@ -15,5 +15,6 @@ namespace BalthasarLib.PianoRollWindow.DrawUtils
             baseEvent = e;
             this.rconf=rconf;
         }
+
     }
 }
