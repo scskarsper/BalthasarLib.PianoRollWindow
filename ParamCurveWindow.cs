@@ -10,7 +10,7 @@ using BalthasarLib.D2DPainter;
 
 namespace BalthasarLib.PianoRollWindow
 {
-    public partial class ParametersWindow : UserControl
+    public partial class ParamCurveWindow : UserControl
     {
         
         /// <summary>
@@ -86,7 +86,7 @@ namespace BalthasarLib.PianoRollWindow
         /// 基础逻辑-公有
         /// </summary>
         #region
-        public ParametersWindow()
+        public ParamCurveWindow()
         {
             InitializeComponent();
             pprops = new PianoProperties(rconf);

@@ -35,7 +35,7 @@ namespace BalthasarLib.PianoRollWindow.DrawUtils
             return new Point(NodeXPixel, NodeYPixel);
            // return new Point((int)(NodeXPixel*1.265), NodeYPixel);
         }
-        public void DrawPitchLine(SortedDictionary<long, double> SortedPitchPointSilk, Color LineColor)
+        public void DrawPitchLine(SortedDictionary<long, double> SortedPitchPointSilk, Color AreaColor)
         {
             //计算X相位边界
             long MinTick = pprops.PianoStartTick;
@@ -68,7 +68,8 @@ namespace BalthasarLib.PianoRollWindow.DrawUtils
             }
             PixelSilkLine.Add(PE);
 
-            if (PixelSilkLine.Count > 1) g.FillPathGeometrySink(PixelSilkLine, LineColor);
+            if (PixelSilkLine.Count > 1) g.FillPathGeometrySink(PixelSilkLine, AreaColor);
         }
+        
     }
 }

@@ -53,11 +53,11 @@
     <Compile Include="Models\PianoRollPoint.cs" />
     <Compile Include="Models\PitchNode.cs" />
     <Compile Include="Models\ParamMouseEventArgs.cs" />
-    <Compile Include="ParametersWindow.cs">
+    <Compile Include="ParamCurveWindow.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="ParametersWindow.Designer.cs">
-      <DependentUpon>ParametersWindow.cs</DependentUpon>
+    <Compile Include="ParamCurveWindow.Designer.cs">
+      <DependentUpon>ParamCurveWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="PianoRollWindow.cs">
       <SubType>UserControl</SubType>
@@ -71,8 +71,8 @@
     <Compile Include="DrawUtils\TrackDrawUtils.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="ParametersWindow.resx">
-      <DependentUpon>ParametersWindow.cs</DependentUpon>
+    <EmbeddedResource Include="ParamCurveWindow.resx">
+      <DependentUpon>ParamCurveWindow.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="PianoRollWindow.resx">
       <DependentUpon>PianoRollWindow.cs</DependentUpon>

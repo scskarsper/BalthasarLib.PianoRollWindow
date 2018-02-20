@@ -1,6 +1,6 @@
 ﻿namespace BalthasarLib.PianoRollWindow
 {
-    partial class ParametersWindow
+    partial class ParamCurveWindow
     {
         /// <summary> 
         /// 必需的设计器变量。
